@@ -1,0 +1,1013 @@
+/* Reusable colours keep light and dark themes consistent across every component. */
+:root {
+  /* A clear system font works without downloading another file. */
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* These light-theme variables are the application's normal starting colours. */
+  --canvas: #edf4fb;
+  --surface: #ffffff;
+  --surface-soft: #f5f8fc;
+  --ink: #14213d;
+  --muted: #5e6d83;
+  --line: #d7e1ed;
+  --brand: #1768ac;
+  --brand-dark: #0f4e84;
+  --focus: #f6b73c;
+  --danger: #9f2f37;
+  --shadow: 0 1rem 2.8rem rgb(18 43 70 / 13%);
+  /* The browser is told that native form controls should use a light appearance. */
+  color-scheme: light;
+}
+
+/* The data attribute changed by React replaces colours for dark mode. */
+:root[data-theme="dark"] {
+  /* Dark navy replaces the pale page canvas. */
+  --canvas: #0d1726;
+  /* Cards become a slightly lighter navy. */
+  --surface: #152337;
+  /* Soft panels receive another subtle dark layer. */
+  --surface-soft: #1b2c43;
+  /* Main text becomes nearly white. */
+  --ink: #eef6ff;
+  /* Secondary text remains visibly quieter while preserving contrast. */
+  --muted: #b7c5d8;
+  /* Borders become a visible slate colour. */
+  --line: #314660;
+  /* The main action colour becomes brighter in dark mode. */
+  --brand: #5aa7e8;
+  /* Hover actions use a deeper but still visible blue. */
+  --brand-dark: #3185ca;
+  /* Darker shadows remain subtle on a dark canvas. */
+  --shadow: 0 1rem 2.8rem rgb(0 0 0 / 25%);
+  /* Native form controls switch to dark appearance where supported. */
+  color-scheme: dark;
+}
+
+/* All elements include padding and borders inside their declared dimensions. */
+* {
+  /* This prevents unexpected width overflow. */
+  box-sizing: border-box;
+}
+
+/* The body establishes the full-page background and readable text defaults. */
+body {
+  /* The browser's default outer gap is removed. */
+  margin: 0;
+  /* Small phones remain supported without collapsing the layout. */
+  min-width: 320px;
+  /* The page is always at least one complete screen tall. */
+  min-height: 100vh;
+  /* Theme variables supply the current page colours. */
+  background: var(--canvas);
+  /* Main text uses the current high-contrast colour. */
+  color: var(--ink);
+  /* Comfortable line spacing helps beginners read explanations. */
+  line-height: 1.6;
+}
+
+/* Form controls inherit the same font as normal page text. */
+button,
+input {
+  /* inherit avoids a mismatched browser-default form font. */
+  font: inherit;
+}
+
+/* Buttons communicate their interactive purpose with a pointer cursor. */
+button {
+  /* The pointer appears whenever an enabled button is hovered. */
+  cursor: pointer;
+}
+
+/* Disabled actions are visibly and behaviourally different. */
+button:disabled {
+  /* Lower opacity communicates temporary unavailability. */
+  opacity: 0.6;
+  /* The cursor confirms that clicking is not accepted. */
+  cursor: not-allowed;
+}
+
+/* Keyboard users receive a strong visible focus indicator. */
+:focus-visible {
+  /* Amber is visible against both light and dark project colours. */
+  outline: 3px solid var(--focus);
+  /* A small gap prevents the outline from touching the control. */
+  outline-offset: 3px;
+}
+
+/* This utility hides text visually while leaving it available to screen readers. */
+.visually-hidden {
+  /* Absolute positioning removes the text from normal visual flow. */
+  position: absolute;
+  /* A one-pixel box is too small to disturb the layout. */
+  width: 1px;
+  height: 1px;
+  /* Negative margin further removes visible space. */
+  margin: -1px;
+  /* Overflow clipping hides the one-pixel content. */
+  overflow: hidden;
+  /* clip keeps compatibility with older browsers. */
+  clip: rect(0 0 0 0);
+  /* The hidden text never wraps into a visible line. */
+  white-space: nowrap;
+}
+
+/* The root application uses a column so its footer can stay below short content. */
+.weather-app {
+  /* Flex allows the main area to grow. */
+  display: flex;
+  /* Header, content, and footer are stacked vertically. */
+  flex-direction: column;
+  /* At least one viewport is always filled. */
+  min-height: 100vh;
+  /* Background changes animate gently after a successful search. */
+  transition: background 250ms ease;
+}
+
+/* Optional weather themes add subtle atmosphere without reducing readability. */
+.page-weather-clear { background: linear-gradient(180deg, #fff8da 0, var(--canvas) 34rem); }
+.page-weather-cloudy { background: linear-gradient(180deg, #dce8f2 0, var(--canvas) 34rem); }
+.page-weather-rain { background: linear-gradient(180deg, #ccd9e8 0, var(--canvas) 34rem); }
+.page-weather-fog { background: linear-gradient(180deg, #e2e7eb 0, var(--canvas) 34rem); }
+.page-weather-snow { background: linear-gradient(180deg, #effcff 0, var(--canvas) 34rem); }
+.page-weather-storm { background: linear-gradient(180deg, #bac4d7 0, var(--canvas) 34rem); }
+
+/* The dark header introduces the project and separates controls from results. */
+.app-header {
+  /* Responsive padding avoids the oversized fixed spacing of earlier examples. */
+  padding: clamp(2.4rem, 6vw, 5rem) clamp(1rem, 6vw, 5rem) clamp(5rem, 9vw, 7rem);
+  /* White text remains readable across the blue gradient. */
+  color: #ffffff;
+  /* The gradient gives the app a recognisable identity. */
+  background: linear-gradient(135deg, #102a43, #1768ac 58%, #36a2ae);
+}
+
+/* The inner header aligns with the main 1100-pixel content width. */
+.header-content {
+  /* The header never becomes wider than the readable content area. */
+  width: min(1100px, 100%);
+  /* Auto margins centre the wrapper. */
+  margin: 0 auto;
+  /* Grid gives text more space than the controls on wide screens. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  /* A responsive gap prevents the two regions from touching. */
+  gap: clamp(1.5rem, 5vw, 4rem);
+  /* Controls align with the bottom of the introductory text. */
+  align-items: end;
+}
+
+/* The main project heading scales without overwhelming phone screens. */
+.app-header h1 {
+  /* Controlled margins group the heading with its label and description. */
+  margin: 0.15rem 0 0.7rem;
+  /* clamp defines a small-screen size, fluid middle, and desktop maximum. */
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  /* Tight line height keeps large letters visually connected. */
+  line-height: 1;
+  /* Slightly tighter spacing improves large-heading balance. */
+  letter-spacing: -0.045em;
+}
+
+/* The header's supporting paragraph remains readable and reasonably narrow. */
+.app-header p:last-child {
+  /* Long lines are capped for easier reading. */
+  max-width: 650px;
+  /* The browser's default paragraph margin is removed. */
+  margin: 0;
+  /* Pale blue maintains hierarchy below the heading. */
+  color: #d9edff;
+  /* A modest responsive font is prominent without becoming oversized. */
+  font-size: clamp(1rem, 2vw, 1.15rem);
+}
+
+/* Eyebrow labels identify a section without competing with its heading. */
+.eyebrow {
+  /* Default margins are replaced with compact spacing. */
+  margin: 0 0 0.3rem;
+  /* Light blue works on dark cards and is overridden where necessary. */
+  color: #8ed9ff;
+  /* Small uppercase text behaves like metadata. */
+  font-size: 0.78rem;
+  /* Strong weight keeps the small label legible. */
+  font-weight: 850;
+  /* Letter spacing separates uppercase characters. */
+  letter-spacing: 0.14em;
+  /* Visual uppercase does not alter the underlying accessible words. */
+  text-transform: uppercase;
+}
+
+/* Header preferences sit together and can wrap on smaller widths. */
+.header-controls {
+  /* Flex places both controls side by side. */
+  display: flex;
+  /* Wrapping prevents overflow. */
+  flex-wrap: wrap;
+  /* A small gap distinguishes the two controls. */
+  gap: 0.7rem;
+}
+
+/* The unit selector appears as one two-part control. */
+.segmented-control {
+  /* Inline flex keeps both unit buttons joined. */
+  display: inline-flex;
+  /* A translucent panel works on the gradient. */
+  background: rgb(255 255 255 / 12%);
+  /* A thin border remains visible in high-contrast conditions. */
+  border: 1px solid rgb(255 255 255 / 30%);
+  /* Rounded corners create a contained group. */
+  border-radius: 0.75rem;
+  /* Small inner spacing separates selected fills from the outer edge. */
+  padding: 0.2rem;
+}
+
+/* Unit and theme buttons use consistent compact sizing. */
+.segmented-control button,
+.theme-button,
+.favourite-button {
+  /* Transparent borders prevent size changes between states. */
+  border: 1px solid transparent;
+  /* Rounded corners match the design system. */
+  border-radius: 0.58rem;
+  /* Compact padding creates a comfortable touch target. */
+  padding: 0.58rem 0.8rem;
+  /* Strong labels remain clear. */
+  font-weight: 800;
+}
+
+/* Unselected unit options remain subtle. */
+.segmented-control button {
+  /* The group background remains visible through the button. */
+  background: transparent;
+  /* White text contrasts with the header. */
+  color: #ffffff;
+}
+
+/* aria-pressed supplies both accessibility meaning and a styling hook. */
+.segmented-control button[aria-pressed="true"] {
+  /* White clearly identifies the active unit. */
+  background: #ffffff;
+  /* Navy gives the selected text strong contrast. */
+  color: #12355b;
+}
+
+/* The theme action uses the same bright contained style. */
+.theme-button {
+  /* White makes this global preference easy to find. */
+  background: #ffffff;
+  /* Dark blue text matches the header palette. */
+  color: #12355b;
+}
+
+/* The main content overlaps the header to visually connect search and results. */
+.app-container {
+  /* The page stops growing on very wide monitors. */
+  width: min(1100px, calc(100% - 2rem));
+  /* A negative top margin lifts the search card over the header boundary. */
+  margin: -3.2rem auto 4rem;
+  /* Flex growth pushes the footer down when content is short. */
+  flex: 1;
+}
+
+/* Search, status, weather, hourly, forecast, and saved sections share card basics. */
+.search-form,
+.status-message,
+.saved-locations,
+.hourly-section,
+.forecast-section,
+.weather-skeleton {
+  /* Theme surface colour provides readable card contrast. */
+  background: var(--surface);
+  /* A light border defines each section. */
+  border: 1px solid var(--line);
+  /* Responsive padding balances phone and desktop density. */
+  padding: clamp(1rem, 3vw, 1.75rem);
+  /* Rounded corners group each section. */
+  border-radius: 1.2rem;
+  /* A restrained shadow separates cards from the atmospheric background. */
+  box-shadow: var(--shadow);
+}
+
+/* Search labels appear clearly above the input group. */
+.search-form > label {
+  /* The block layout gives the label its own line. */
+  display: block;
+  /* A small margin separates words from the control. */
+  margin-bottom: 0.55rem;
+  /* Strong weight clearly connects the label to the input. */
+  font-weight: 800;
+}
+
+/* The search controls form a flexible row on wide screens. */
+.search-group {
+  /* Grid gives the text input the available space. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  /* Gaps prevent controls from touching. */
+  gap: 0.7rem;
+  /* Bottom alignment keeps different controls visually level. */
+  align-items: start;
+}
+
+/* The wrapper supplies the positioning context for suggestions. */
+.search-input-wrapper {
+  /* Relative positioning anchors the absolute suggestion panel. */
+  position: relative;
+  /* A zero minimum width allows grid shrinking without overflow. */
+  min-width: 0;
+}
+
+/* The city input fills the flexible search column. */
+.search-input-wrapper input {
+  /* Full width avoids leaving unused space. */
+  width: 100%;
+  /* A visible border defines the text field. */
+  border: 1px solid #aabbd0;
+  /* Rounded corners match action buttons. */
+  border-radius: 0.72rem;
+  /* Padding provides a comfortable typing and touch area. */
+  padding: 0.78rem 0.9rem;
+  /* Theme colours keep the field readable in dark mode. */
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+/* The suggestion menu appears directly beneath the city input. */
+.suggestion-panel {
+  /* Absolute positioning avoids pushing the form downward while typing. */
+  position: absolute;
+  /* The menu begins just below the input. */
+  top: calc(100% + 0.4rem);
+  /* Both edges match the input width. */
+  left: 0;
+  right: 0;
+  /* A high stacking level places results above later cards. */
+  z-index: 8;
+  /* The menu uses the current card colour. */
+  background: var(--surface);
+  /* A border and shadow make its floating relationship clear. */
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  /* Rounded corners mirror the input. */
+  border-radius: 0.8rem;
+  /* Overflow clipping keeps button backgrounds inside rounded edges. */
+  overflow: hidden;
+}
+
+/* Suggestion progress text receives compact spacing. */
+.suggestion-panel p {
+  /* The panel needs its own controlled margin. */
+  margin: 0;
+  /* Padding matches the option buttons. */
+  padding: 0.8rem;
+  /* Muted colour indicates temporary information. */
+  color: var(--muted);
+}
+
+/* Each location suggestion is a full-width keyboard-accessible button. */
+.suggestion-panel button {
+  /* Block layout lets both name and region stack. */
+  display: flex;
+  /* Text appears vertically. */
+  flex-direction: column;
+  /* The option fills the menu width. */
+  width: 100%;
+  /* A subtle divider separates options. */
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  /* Text aligns naturally for reading. */
+  text-align: left;
+  /* Comfortable option padding aids touch users. */
+  padding: 0.72rem 0.85rem;
+  /* Theme colours maintain readability. */
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* Hovering a suggestion provides immediate interaction feedback. */
+.suggestion-panel button:hover {
+  /* The soft surface makes the hovered option distinct. */
+  background: var(--surface-soft);
+}
+
+/* Secondary location text uses the muted hierarchy colour. */
+.suggestion-panel span {
+  /* Slightly smaller type distinguishes context from the place name. */
+  font-size: 0.82rem;
+  /* Muted colour preserves visual hierarchy. */
+  color: var(--muted);
+}
+
+/* Shared action classes keep search, retry, and geolocation consistent. */
+.primary-button,
+.secondary-button {
+  /* Borders remain stable across interaction states. */
+  border: 1px solid transparent;
+  /* Rounded corners match the search field. */
+  border-radius: 0.72rem;
+  /* Padding makes actions comfortable to touch. */
+  padding: 0.78rem 1rem;
+  /* Strong weight communicates action. */
+  font-weight: 800;
+  /* Preventing wrap keeps short button labels tidy. */
+  white-space: nowrap;
+}
+
+/* Primary actions use the main brand colour. */
+.primary-button {
+  /* Brand blue gives search and retry high emphasis. */
+  background: var(--brand);
+  /* White remains legible on the brand fill. */
+  color: #ffffff;
+}
+
+/* Primary hover state confirms interactivity. */
+.primary-button:hover:not(:disabled) {
+  /* A darker blue appears while hovering. */
+  background: var(--brand-dark);
+}
+
+/* Secondary actions use a quieter outlined style. */
+.secondary-button {
+  /* The surface-soft background is visible in either theme. */
+  background: var(--surface-soft);
+  /* A real border defines the secondary control. */
+  border-color: var(--line);
+  /* Main text colour preserves contrast. */
+  color: var(--ink);
+}
+
+/* Saved-location content appears directly beneath the search form. */
+.saved-locations {
+  /* Grid can place Recent and Favourites beside each other. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  /* A gap separates optional groups. */
+  gap: 1rem;
+  /* The section is visually connected but not attached to search. */
+  margin-top: 0.9rem;
+  /* Slightly smaller padding keeps this convenience feature compact. */
+  padding: 1rem;
+}
+
+/* Saved group headings behave like compact labels. */
+.saved-group h2 {
+  /* Default heading margins are replaced. */
+  margin: 0 0 0.55rem;
+  /* This secondary section does not need a large heading. */
+  font-size: 0.92rem;
+}
+
+/* Saved buttons wrap naturally across the available width. */
+.saved-list {
+  /* Flex allows compact pill buttons. */
+  display: flex;
+  /* Buttons wrap to new rows instead of overflowing. */
+  flex-wrap: wrap;
+  /* Small gaps preserve clear touch targets. */
+  gap: 0.45rem;
+}
+
+/* Saved locations use subtle pill styling. */
+.saved-list button {
+  /* A thin border defines each saved location. */
+  border: 1px solid var(--line);
+  /* A large radius creates the pill shape. */
+  border-radius: 999px;
+  /* Compact padding keeps the history section short. */
+  padding: 0.42rem 0.7rem;
+  /* Theme surfaces adapt to light and dark mode. */
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+/* Status messages provide clear initial, loading, offline, and error feedback. */
+.status-message {
+  /* The card is separated from search and saved locations. */
+  margin-top: 1rem;
+  /* Central alignment makes simple status messages easy to scan. */
+  text-align: center;
+}
+
+/* The status icon is large enough to be recognisable but not decorative clutter. */
+.status-icon {
+  /* Block display places the icon above the title. */
+  display: block;
+  /* A moderate size creates a clear visual cue. */
+  font-size: 2rem;
+}
+
+/* Status headings use restrained spacing. */
+.status-message h2 {
+  /* The top margin separates the icon and heading. */
+  margin: 0.4rem 0;
+}
+
+/* Supporting status text uses the muted colour. */
+.status-message p {
+  /* A readable line width prevents extremely long lines. */
+  max-width: 660px;
+  /* Auto horizontal margins centre the paragraph. */
+  margin: 0.3rem auto 1rem;
+  /* Muted colour preserves hierarchy. */
+  color: var(--muted);
+}
+
+/* Error and offline states use a left border and tinted background. */
+.status-message.error,
+.status-message.offline {
+  /* A safe pale red remains readable in light mode. */
+  background: color-mix(in srgb, var(--surface) 88%, #ffb1b1);
+  /* The border uses the error colour as a non-text cue. */
+  border-left: 5px solid var(--danger);
+}
+
+/* The current card uses white text over condition-specific gradients. */
+.current-weather {
+  /* Results are separated from controls. */
+  margin-top: 1rem;
+  /* Responsive padding prevents oversized phone layouts. */
+  padding: clamp(1.2rem, 4vw, 2.2rem);
+  /* White text is shared by all dark weather gradients. */
+  color: #ffffff;
+  /* Rounded corners make the result one clear unit. */
+  border-radius: 1.35rem;
+  /* The main result receives a confident but restrained shadow. */
+  box-shadow: var(--shadow);
+}
+
+/* Condition classes change the result card's atmosphere. */
+.weather-clear { background: linear-gradient(135deg, #145da0, #f4a261); }
+.weather-cloudy { background: linear-gradient(135deg, #34495e, #71869b); }
+.weather-rain { background: linear-gradient(135deg, #1d3557, #457b9d); }
+.weather-fog { background: linear-gradient(135deg, #536976, #7b8d93); }
+.weather-snow { background: linear-gradient(135deg, #355c7d, #6c9fb8); }
+.weather-storm { background: linear-gradient(135deg, #20253d, #5a4b81); }
+.weather-default { background: linear-gradient(135deg, #12355b, #1768ac); }
+
+/* Current heading and temperature rows share flexible alignment. */
+.current-heading,
+.temperature-row {
+  /* Flex places primary and secondary information side by side. */
+  display: flex;
+  /* Opposite alignment uses the full card width. */
+  justify-content: space-between;
+  /* Vertical centring creates balance. */
+  align-items: center;
+  /* A gap prevents overlap when text wraps. */
+  gap: 1.2rem;
+}
+
+/* The current place heading scales gently. */
+.current-heading h2 {
+  /* Controlled margins group location and update time. */
+  margin: 0.15rem 0 0.35rem;
+  /* clamp keeps long city names manageable. */
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  /* Wrapped place names remain closely connected. */
+  line-height: 1.15;
+}
+
+/* Updated time uses pale text for hierarchy. */
+.current-heading p:last-child,
+.temperature-row p {
+  /* Default margins are removed. */
+  margin: 0;
+  /* Pale blue remains readable on gradients. */
+  color: #d9edff;
+}
+
+/* Icon and favourite control stack vertically. */
+.current-actions {
+  /* Flex provides simple vertical alignment. */
+  display: flex;
+  flex-direction: column;
+  /* A small gap separates icon and action. */
+  gap: 0.5rem;
+  /* Both items align toward the far edge. */
+  align-items: flex-end;
+}
+
+/* The current condition icon is visually prominent. */
+.weather-icon {
+  /* A responsive size fits phones and desktops. */
+  font-size: clamp(3rem, 8vw, 5rem);
+  /* A compact line prevents invisible extra height. */
+  line-height: 1;
+}
+
+/* Favourite action uses a translucent light treatment on weather gradients. */
+.favourite-button {
+  /* The translucent fill preserves the weather background. */
+  background: rgb(255 255 255 / 16%);
+  /* A light border defines the control. */
+  border-color: rgb(255 255 255 / 35%);
+  /* White text remains readable. */
+  color: #ffffff;
+}
+
+/* The selected favourite receives a brighter fill. */
+.favourite-button[aria-pressed="true"] {
+  /* White makes saved state unmistakable. */
+  background: #ffffff;
+  /* Navy keeps selected-state text readable. */
+  color: #12355b;
+}
+
+/* The temperature row is visually separated from heading and details. */
+.temperature-row {
+  /* Vertical spacing creates a distinct middle region. */
+  margin: 1.7rem 0;
+  padding: 1.35rem 0;
+  /* Subtle lines define the row without enclosing it. */
+  border-top: 1px solid rgb(255 255 255 / 24%);
+  border-bottom: 1px solid rgb(255 255 255 / 24%);
+}
+
+/* The current temperature is the strongest visual value. */
+.temperature-row > strong {
+  /* A large but capped size prevents page distortion. */
+  font-size: clamp(4rem, 11vw, 7rem);
+  /* Unit and number remain visually tight. */
+  line-height: 0.95;
+  /* Slightly tighter letters improve balance. */
+  letter-spacing: -0.07em;
+}
+
+/* The human-readable condition is secondary to the numeric temperature. */
+.temperature-row h3 {
+  /* Controlled spacing groups condition and apparent temperature. */
+  margin: 0 0 0.25rem;
+  /* A moderate heading size remains readable. */
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+}
+
+/* Detailed weather values form a responsive grid. */
+.weather-details {
+  /* Grid aligns several comparable values. */
+  display: grid;
+  /* Three columns create two compact rows on desktop. */
+  grid-template-columns: repeat(3, 1fr);
+  /* Consistent gaps distinguish detail cards. */
+  gap: 0.7rem;
+}
+
+/* Every detail value receives a translucent panel. */
+.weather-details article {
+  /* Comfortable inner spacing improves readability. */
+  padding: 0.9rem;
+  /* Transparency keeps the main gradient visible. */
+  background: rgb(255 255 255 / 12%);
+  /* Rounded corners group the label and value. */
+  border-radius: 0.75rem;
+}
+
+/* Detail labels and values stack vertically. */
+.weather-details span,
+.weather-details strong {
+  /* Block display gives each piece its own line. */
+  display: block;
+}
+
+/* Detail labels are intentionally quieter. */
+.weather-details span {
+  /* A small bottom gap separates label from value. */
+  margin-bottom: 0.2rem;
+  /* Pale blue maintains readable hierarchy. */
+  color: #d9edff;
+  /* Small type signals metadata. */
+  font-size: 0.78rem;
+}
+
+/* Hourly and daily sections appear beneath the current result. */
+.hourly-section,
+.forecast-section {
+  /* A consistent margin establishes vertical rhythm. */
+  margin-top: 1rem;
+}
+
+/* Section headings use theme-aware colours. */
+.section-heading .eyebrow {
+  /* Brand blue is readable on card surfaces. */
+  color: var(--brand);
+}
+
+/* Hourly and daily section titles use restrained sizes. */
+.section-heading h2 {
+  /* Controlled margins group eyebrow and heading. */
+  margin: 0.1rem 0 1rem;
+  /* A responsive heading size avoids excessive height. */
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+}
+
+/* Hourly items can be swiped horizontally on narrow screens. */
+.hourly-list {
+  /* Flex lays chronological items in one row. */
+  display: flex;
+  /* Small gaps preserve item separation. */
+  gap: 0.65rem;
+  /* Horizontal overflow enables touch swiping. */
+  overflow-x: auto;
+  /* Bottom padding makes the scrollbar comfortable. */
+  padding: 0.15rem 0 0.6rem;
+  /* Each swipe naturally settles near one complete hour. */
+  scroll-snap-type: x proximity;
+  /* Momentum scrolling improves iOS touch behaviour. */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* One hourly item remains compact and non-shrinking. */
+.hourly-list article {
+  /* A fixed basis keeps all hourly cards equal. */
+  flex: 0 0 95px;
+  /* Scroll snapping aligns cards cleanly. */
+  scroll-snap-align: start;
+  /* Grid stacks and centres each value. */
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  /* Soft backgrounds distinguish each hour. */
+  background: var(--surface-soft);
+  /* A border defines the compact card. */
+  border: 1px solid var(--line);
+  /* Rounded corners match the wider interface. */
+  border-radius: 0.85rem;
+  /* Compact padding preserves density. */
+  padding: 0.75rem 0.5rem;
+}
+
+/* Hourly weather icons are prominent without dominating. */
+.hourly-list article > span {
+  /* The icon receives a clear but moderate size. */
+  font-size: 1.55rem;
+}
+
+/* Hourly supporting data remains quieter. */
+.hourly-list time,
+.hourly-list small {
+  /* Muted colour separates metadata from temperature. */
+  color: var(--muted);
+  /* Compact type fits narrow cards. */
+  font-size: 0.76rem;
+}
+
+/* Five forecast cards form an adaptive grid. */
+.forecast-grid {
+  /* Grid provides equal card widths. */
+  display: grid;
+  /* auto-fit wraps cards based on the available width. */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* Gaps prevent cards from touching. */
+  gap: 0.75rem;
+}
+
+/* Each daily forecast is a centred compact card. */
+.forecast-card {
+  /* A border defines the card on both themes. */
+  border: 1px solid var(--line);
+  /* Rounded corners match the parent section. */
+  border-radius: 0.9rem;
+  /* Comfortable padding supports touch and readability. */
+  padding: 1rem;
+  /* A soft background creates gentle hierarchy. */
+  background: var(--surface-soft);
+  /* Centring makes parallel values easy to compare. */
+  text-align: center;
+}
+
+/* Forecast day headings receive compact spacing. */
+.forecast-card h3 {
+  /* The top default margin is removed. */
+  margin: 0;
+  /* Modest type keeps five cards compact. */
+  font-size: 0.96rem;
+}
+
+/* Forecast condition labels use muted text and controlled height. */
+.forecast-card p {
+  /* Compact vertical margins preserve density. */
+  margin: 0.35rem 0;
+  /* Muted colour maintains hierarchy. */
+  color: var(--muted);
+}
+
+/* Daily icons receive a recognisable size. */
+.forecast-icon {
+  /* Block display centres the icon on its own line. */
+  display: block;
+  /* Small vertical margins separate date and condition. */
+  margin: 0.6rem 0;
+  /* The icon is large enough to scan quickly. */
+  font-size: 2.25rem;
+}
+
+/* High and low temperatures sit together. */
+.forecast-temperatures {
+  /* Flex aligns both values horizontally. */
+  display: flex;
+  /* Centring keeps the pair balanced. */
+  justify-content: center;
+  /* A gap separates high and low values. */
+  gap: 0.7rem;
+}
+
+/* The low temperature and precipitation use muted colour. */
+.forecast-temperatures span,
+.forecast-card small {
+  /* Muted colour distinguishes secondary values. */
+  color: var(--muted);
+}
+
+/* The precipitation line sits below temperatures. */
+.forecast-card small {
+  /* Block display starts a new line. */
+  display: block;
+  /* A small top margin separates it from temperatures. */
+  margin-top: 0.45rem;
+}
+
+/* Skeleton loading approximates the current-weather result. */
+.weather-skeleton {
+  /* The skeleton is separated from the search interface. */
+  margin-top: 1rem;
+  /* A minimum height reduces layout movement when weather appears. */
+  min-height: 390px;
+}
+
+/* Every skeleton shape shares the same animated gradient. */
+.skeleton-line,
+.skeleton-temperature,
+.skeleton-grid div {
+  /* The gradient produces a light sweep across placeholders. */
+  background: linear-gradient(90deg, var(--surface-soft) 25%, var(--line) 50%, var(--surface-soft) 75%);
+  /* Enlarged background makes the sweep visible. */
+  background-size: 200% 100%;
+  /* The animation moves the gradient continuously. */
+  animation: shimmer 1.4s infinite linear;
+  /* Rounded corners make placeholders resemble final content. */
+  border-radius: 0.6rem;
+}
+
+/* The small skeleton line represents an eyebrow label. */
+.skeleton-line.short {
+  /* A short width resembles a compact label. */
+  width: 25%;
+  /* Fixed height resembles one text line. */
+  height: 0.8rem;
+}
+
+/* The title skeleton resembles a city heading. */
+.skeleton-line.title {
+  /* A medium width fits most city names. */
+  width: 52%;
+  /* A larger height represents heading text. */
+  height: 2.4rem;
+  /* Vertical margin separates the two skeleton lines. */
+  margin-top: 0.8rem;
+}
+
+/* The temperature placeholder is the skeleton's largest shape. */
+.skeleton-temperature {
+  /* A wide compact block resembles a large temperature. */
+  width: 42%;
+  height: 6rem;
+  /* Vertical margin mirrors the final temperature row. */
+  margin: 2.4rem 0;
+}
+
+/* The skeleton detail row matches the final three-column rhythm. */
+.skeleton-grid {
+  /* Grid places three placeholder panels together. */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* A consistent gap matches weather details. */
+  gap: 0.7rem;
+}
+
+/* Each skeleton detail panel has visible height. */
+.skeleton-grid div {
+  /* Fixed height approximates detail content. */
+  height: 4.5rem;
+}
+
+/* The shimmer animation moves its background from right to left. */
+@keyframes shimmer {
+  /* Starting beyond the right edge creates an incoming highlight. */
+  from { background-position: 200% 0; }
+  /* Finishing beyond the left creates continuous movement. */
+  to { background-position: -200% 0; }
+}
+
+/* The footer finishes the page with provider attribution. */
+.app-footer {
+  /* Comfortable padding prevents text from touching the edge. */
+  padding: 1.25rem;
+  /* Navy works in either application theme. */
+  background: #102a43;
+  /* Pale text maintains strong contrast. */
+  color: #d9edff;
+  /* Centring suits this short attribution. */
+  text-align: center;
+}
+
+/* The footer paragraph does not need browser-default outer margins. */
+.app-footer p {
+  /* Removing margin keeps footer height predictable. */
+  margin: 0;
+}
+
+/* Medium screens stack the header regions and search location action. */
+@media (max-width: 820px) {
+  /* The header becomes one column. */
+  .header-content {
+    /* One column gives both text and controls the full width. */
+    grid-template-columns: 1fr;
+  }
+
+  /* Search keeps its input and button together while location moves below. */
+  .search-group {
+    /* Two columns preserve a useful input width. */
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* The location action spans the complete search row. */
+  .search-group .secondary-button {
+    /* Both grid columns are occupied. */
+    grid-column: 1 / -1;
+  }
+}
+
+/* Small screens stack controls and reduce multi-column weather pressure. */
+@media (max-width: 600px) {
+  /* Header controls become vertical for reliable phone-width touch targets. */
+  .header-controls {
+    /* Column direction prevents wrapping into awkward partial rows. */
+    flex-direction: column;
+  }
+
+  /* The theme control fills the available header width. */
+  .theme-button {
+    /* Full width improves phone tapping. */
+    width: 100%;
+  }
+
+  /* Both unit buttons divide the full segmented control evenly. */
+  .segmented-control button {
+    /* Each option gets an equal share. */
+    flex: 1;
+  }
+
+  /* Search controls become a simple vertical stack. */
+  .search-group {
+    /* One column prevents horizontal overflow. */
+    grid-template-columns: 1fr;
+  }
+
+  /* The location action no longer needs explicit column spanning. */
+  .search-group .secondary-button {
+    /* Auto places it naturally within the one-column grid. */
+    grid-column: auto;
+  }
+
+  /* Main weather rows stack so long city names and large numbers fit. */
+  .current-heading,
+  .temperature-row {
+    /* Vertical direction gives each region full width. */
+    flex-direction: column;
+    /* Left alignment follows normal reading order. */
+    align-items: flex-start;
+  }
+
+  /* Current actions align left after the parent row stacks. */
+  .current-actions {
+    /* Left alignment matches the heading. */
+    align-items: flex-start;
+  }
+
+  /* Detailed values use two compact phone columns. */
+  .weather-details {
+    /* Two columns balance readability and page height. */
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Skeleton details follow the same two-column mobile rhythm. */
+  .skeleton-grid {
+    /* Two columns prevent very narrow placeholders. */
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Motion-sensitive visitors receive a still interface. */
+@media (prefers-reduced-motion: reduce) {
+  /* The application background changes immediately. */
+  .weather-app {
+    /* Removing transition prevents unwanted animation. */
+    transition: none;
+  }
+
+  /* Skeleton placeholders remain visible without shimmering. */
+  .skeleton-line,
+  .skeleton-temperature,
+  .skeleton-grid div {
+    /* Disabling animation respects the operating-system preference. */
+    animation: none;
+  }
+}
