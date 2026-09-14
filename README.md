@@ -79,3 +79,16 @@ If a new request starts, the earlier `AbortController` cancels its obsolete requ
 - Search suggestions wait 350 milliseconds after typing and cancel obsolete requests.
 
 See `MINI_PROJECT_SPECIFICATION.md` for the complete extracted requirements, testing checklist, optional enhancements, and alternative-project information.
+
+## Current-location correction
+
+The **Use my location** action now follows this sequence:
+
+1. Ask the browser for the user's current coordinates with `navigator.geolocation.getCurrentPosition()`.
+2. Reverse-geocode those exact coordinates through BigDataCloud's free client-side reverse-geocoding endpoint.
+3. Use the returned city/locality, region, and country as the displayed location.
+4. Request weather directly from Open-Meteo using the same latitude and longitude.
+
+This avoids the previous misleading `Current location` placeholder. The reverse-geocoding service is intended for real-time client-side coordinates obtained with user consent; review its fair-use policy before production use.
+
+The homepage weather-API attribution footer was also removed as requested. The existing search, forecast, saved locations, theme, unit selection, loading/error handling, and responsive UI were otherwise preserved.

@@ -40,3 +40,8 @@ test("shows accessible unit and theme controls", () => {
   // The theme button clearly states the next available action.
   expect(screen.getByRole("button", { name: "🌙 Dark mode" })).toBeInTheDocument();
 });
+
+test("does not render the removed weather API attribution footer", () => {
+  render(<App />);
+  expect(screen.queryByText(/Weather data provided by Open-Meteo/i)).not.toBeInTheDocument();
+});

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getCityWeather,
   getLocationWeather,
+  reverseGeocodeCurrentLocation,
   getWeatherErrorMessage,
   searchLocations,
 } from "../api/weatherApi.js";
@@ -264,17 +265,24 @@ export default function useWeatherDashboard() {
     // getCurrentPosition runs one callback on success and another on failure.
     navigator.geolocation.getCurrentPosition(
       // This success callback receives the visitor-approved coordinates.
-      (position) => {
-        // A normal location object lets the existing selection function be reused.
-        selectLocation({
-          id: "current-location",
-          name: "Current location",
-          region: "",
-          country: "",
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          timezone: "auto",
-        });
+      async (position) => {
+        // Store the exact coordinates supplied by the browser before reverse geocoding them.
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        try {
+          // Reverse geocoding gives the weather card an actual city/locality name for these same coordinates.
+          const location = await reverseGeocodeCurrentLocation(latitude, longitude);
+          // The weather request now uses the exact browser coordinates, not coordinates from a city search.
+          await selectLocation(location);
+        } catch (locationError) {
+          // Technical details remain in the console for debugging.
+          console.error("[geolocation] Location identification failed", locationError);
+          // The user is told that the location name could not be resolved instead of being shown a misleading label.
+          setError("Your current location was detected, but its place name could not be identified. Search for a city instead.");
+          // The error branch becomes visible.
+          setStatus("error");
+        }
       },
       // This failure callback handles denial, timeout, and unavailable coordinates.
       (geolocationError) => {
@@ -286,7 +294,7 @@ export default function useWeatherDashboard() {
         setStatus("error");
       },
       // These options request a reasonably recent and accurate location without waiting forever.
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
   }, [selectLocation]);
 

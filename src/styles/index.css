@@ -110,7 +110,7 @@ button:disabled {
   white-space: nowrap;
 }
 
-/* The root application uses a column so its footer can stay below short content. */
+/* The root application uses a column so the page fills the viewport naturally. */
 .weather-app {
   /* Flex allows the main area to grow. */
   display: flex;
@@ -896,23 +896,6 @@ button:disabled {
   to { background-position: -200% 0; }
 }
 
-/* The footer finishes the page with provider attribution. */
-.app-footer {
-  /* Comfortable padding prevents text from touching the edge. */
-  padding: 1.25rem;
-  /* Navy works in either application theme. */
-  background: #102a43;
-  /* Pale text maintains strong contrast. */
-  color: #d9edff;
-  /* Centring suits this short attribution. */
-  text-align: center;
-}
-
-/* The footer paragraph does not need browser-default outer margins. */
-.app-footer p {
-  /* Removing margin keeps footer height predictable. */
-  margin: 0;
-}
 
 /* Medium screens stack the header regions and search location action. */
 @media (max-width: 820px) {

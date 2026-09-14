@@ -8,6 +8,7 @@ function SavedLocations({ favourites, onSelect, recentSearches }) {
     // Empty groups are omitted to avoid unexplained headings.
     if (locations.length === 0) return null;
     // Each location button starts an exact coordinate request.
+    
     return (
       <div className="saved-group">
         <h2>{title}</h2>

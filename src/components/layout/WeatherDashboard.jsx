@@ -107,10 +107,6 @@ function WeatherDashboard() {
           </div>
         )}
       </main>
-      {/* The provider attribution explains where the live information comes from. */}
-      <footer className="app-footer">
-        <p>Weather data provided by Open-Meteo. No private API key is required or exposed.</p>
-      </footer>
     </div>
   );
 }

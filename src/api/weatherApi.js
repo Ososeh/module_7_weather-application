@@ -6,6 +6,52 @@ const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 // This endpoint returns current, hourly, and daily weather for coordinates.
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
+// This client-side endpoint converts the browser-approved GPS coordinates into a readable city/location name.
+const REVERSE_GEOCODING_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
+
+// This function performs reverse geocoding only for coordinates obtained from the user's current browser location.
+export async function reverseGeocodeCurrentLocation(latitude, longitude, { signal } = {}) {
+  // Validate the live coordinates before sending them to the reverse-geocoding service.
+  if (!isCoordinate(latitude) || !isCoordinate(longitude)) {
+    // A clear error prevents the weather request from using invalid coordinates.
+    throw new Error("Valid current-location coordinates are required.");
+  }
+
+  // The request is made directly from the browser after the user chooses the location feature.
+  console.log("[weatherApi] Reverse geocoding current browser location", { latitude, longitude });
+
+  // Axios handles the query parameters and JSON response for us.
+  const response = await weatherClient.get(REVERSE_GEOCODING_URL, {
+    params: {
+      latitude,
+      longitude,
+      localityLanguage: "en",
+    },
+    signal,
+  });
+
+  // BigDataCloud returns city, locality, subdivision, and country information for the live coordinates.
+  const data = response.data;
+  // Prefer the city, then the more granular locality if a city name is unavailable.
+  const name = data?.city || data?.locality;
+
+  // The weather screen needs a meaningful place name, so stop if the reverse lookup cannot provide one.
+  if (!name || !data?.countryName) {
+    throw new Error("The current location could not be identified.");
+  }
+
+  // Return the same normalized location shape used by city searches and saved locations.
+  return {
+    id: `current-${Number(latitude).toFixed(5)}-${Number(longitude).toFixed(5)}`,
+    name,
+    region: data.principalSubdivision ?? "",
+    country: data.countryName ?? "",
+    latitude: Number(latitude),
+    longitude: Number(longitude),
+    timezone: data.timeZone ?? "auto",
+  };
+}
+
 // A shared client keeps the timeout and response format in one place.
 const weatherClient = axios.create({
   // Ten seconds prevents a request from waiting forever on a weak connection.
